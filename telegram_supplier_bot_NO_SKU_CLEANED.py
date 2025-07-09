@@ -12,7 +12,7 @@ import pytz  # ### ИЗМЕНЕНИЕ ### Добавляем библиотек�
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (
     Updater, CommandHandler, MessageHandler, CallbackQueryHandler,
-    Filters, CallbackContext, ConversationHandler
+    Filters, CallbackContext, ConversationHandler, DispatcherHandlerStop
 )
 import gspread
 from google.oauth2.service_account import Credentials
@@ -26,7 +26,8 @@ from gspread_formatting import CellFormat, Color, format_cell_ranges, \
 TELEGRAM_TOKEN = '8093252560:AAGGOE06osNjdrh85qT_Jnqf4b0pOfa0Gx0'
 OPENAI_API_KEY = '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'
 GOOGLE_SHEET_ID = '1rrjD_SpB79V0djuW-lDP_hIRptzdrITauRoybuJkoqA'
-
+BOT_PASSWORD = "Qrepov39@_1bl"  # <-- ЗАМЕНИТЕ ЭТОТ ПАРОЛЬ НА СВОЙ
+VERIFIED_USERS_FILE = 'verified_users.txt'
 GOOGLE_SHEET_RAW = 'Raw'
 GOOGLE_SHEET_CATALOG = 'Catalog'
 CUSTOM_GROUPS_FILE = 'custom_groups.json'
@@ -62,6 +63,73 @@ custom_groups = {}
 # === ЛОГГИРОВАНИЕ ===
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
 
+def load_verified_users(filename: str) -> set:
+    """Загружает ID верифицированных пользователей из файла в множество."""
+    try:
+        with open(filename, 'r') as f:
+            # Преобразуем каждую строку в int и убираем пустые строки
+            return {int(user_id.strip()) for user_id in f if user_id.strip()}
+    except FileNotFoundError:
+        # Если файл не найден, возвращаем пустое множество
+        return set()
+
+def add_verified_user(user_id: int, filename: str):
+    """Добавляет ID нового верифицированного пользователя в файл."""
+    with open(filename, 'a') as f:
+        f.write(f"{user_id}\n")
+
+# ### НОВОЕ: Загружаем пользователей при запуске скрипта ###
+verified_users = load_verified_users(VERIFIED_USERS_FILE)
+logging.info(f"Загружено {len(verified_users)} верифицированных пользователей из файла.")
+
+
+def handle_verification(update: Update, context: CallbackContext):
+    """
+    Первый обработчик, который проверяет пароль.
+    Если пользователь не верифицирован, он не сможет использовать другие команды.
+    """
+    user_id = update.effective_user.id
+    text = update.message.text
+
+    # Если пользователь уже есть в списке, ничего не делаем,
+    # и управление перейдет к другим обработчикам.
+    if user_id in verified_users:
+        return
+
+    # Если пользователь не верифицирован, проверяем пароль
+    if text == BOT_PASSWORD:
+        # ### ИЗМЕНЕНИЕ ###
+        # Добавляем пользователя в множество И в файл
+        verified_users.add(user_id)
+        add_verified_user(user_id, VERIFIED_USERS_FILE)
+
+        logging.info(f"Пользователь {user_id} успешно верифицирован и сохранен в файл.")
+        update.message.reply_text("✅ Пароль верный! Доступ разблокирован.")
+        # Сразу показываем ему главное меню
+        start(update, context)
+    else:
+        logging.warning(f"Неудачная попытка входа от пользователя {user_id}.")
+        update.message.reply_text("🔒 Введите пароль для доступа к боту.")
+
+    # Останавливаем дальнейшую обработку сообщения, если оно было от неавторизованного пользователя
+    from telegram.ext import Dispatcher
+    raise DispatcherHandlerStop
+
+from functools import wraps
+
+def require_verification(func):
+    """
+    Декоратор, который проверяет, верифицирован ли пользователь.
+    """
+    @wraps(func)
+    def wrapper(update: Update, context: CallbackContext, *args, **kwargs):
+        user_id = update.effective_user.id
+        if user_id in verified_users:
+            return func(update, context, *args, **kwargs)
+        else:
+            update.message.reply_text("🔒 Сначала введите пароль для доступа к боту.")
+            return
+    return wrapper
 
 def load_custom_groups():
     if os.path.exists(CUSTOM_GROUPS_FILE):
@@ -346,7 +414,7 @@ def generate_model_id(model: str, memory: str, color: str, country: str) -> str:
 
 
 # ... (остальные функции get_device_group, load/save_custom_groups и т.д. остаются без изменений) ...
-
+@require_verification
 def handle_keyboard_input(update: Update, context: CallbackContext):
     text = (update.message.text or update.message.caption or "").lower()
     if "сформировать" in text:
@@ -358,7 +426,7 @@ def handle_keyboard_input(update: Update, context: CallbackContext):
     else:
         return handle_message(update, context)
 
-
+@require_verification
 def send_table_link(update: Update, context: CallbackContext):
     url = f"https://docs.google.com/spreadsheets/d/{GOOGLE_SHEET_ID}"
     update.message.reply_text(f"📊 Вот ссылка на таблицу:\n{url}")
@@ -473,6 +541,7 @@ def update_google_sheets(products):
 
     apply_conditional_formatting(list_sheet)
 
+@require_verification
 def handle_message(update: Update, context: CallbackContext):
     uid = update.effective_user.id
     # Добавим поддержку текста из caption
@@ -486,7 +555,7 @@ def handle_message(update: Update, context: CallbackContext):
     else:
         update.message.reply_text("⚠️ Сообщение не содержит текста.")
 
-
+@require_verification
 def start(update: Update, context: CallbackContext):
     keyboard = ReplyKeyboardMarkup(
         [[KeyboardButton("Сформировать"), KeyboardButton("Очистить")],
@@ -501,7 +570,7 @@ def button_callback(update: Update, context: CallbackContext):
     update.callback_query.message.reply_text("Введи имя поставщика:")
     return ASK_SUPPLIER
 
-
+@require_verification
 def receive_supplier(update: Update, context: CallbackContext):
     supplier = update.message.text
     uid = update.effective_user.id
@@ -668,7 +737,7 @@ def scheduler_loop():
 # Запускаем планировщик в отдельном потоке
 threading.Thread(target=scheduler_loop, daemon=True).start()
 
-
+@require_verification
 def drop_table(update: Update, context: CallbackContext):
     try:
         raw_sheet = gsheet.open_by_key(GOOGLE_SHEET_ID).worksheet("Raw")
@@ -691,18 +760,18 @@ def drop_table(update: Update, context: CallbackContext):
         logging.error(f"[ERROR] Ошибка при очистке таблиц: {e}")
         update.message.reply_text("⚠️ Не удалось очистить таблицы.")
 
-
+@require_verification
 def clear_messages(update: Update, context: CallbackContext):
     uid = update.effective_user.id
     user_messages[uid] = []
     update.message.reply_text("🧹 Список сохранённых сообщений очищен.")
 
-
+@require_verification
 def start_form(update: Update, context: CallbackContext):
     update.message.reply_text("Введите имя поставщика:")
     return ASK_SUPPLIER
 
-
+@require_verification
 def run_update_command(update: Update, context: CallbackContext):
     """
     Принудительно запускает ежедневное обновление для тестирования,
@@ -730,39 +799,26 @@ def main():
     updater = Updater(TELEGRAM_TOKEN, use_context=True)
     dp = updater.dispatcher
 
-    # --- РЕГИСТРАЦИЯ КОМАНД ---
-    # Основные команды, доступные всегда
+    # Регистрируем "охранника" с высшим приоритетом (group=-1)
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_verification), group=-1)
+
+    # --- РЕГИСТРАЦИЯ ЗАЩИЩЕННЫХ КОМАНД ---
+    # Все эти обработчики сработают, только если пользователь прошел верификацию.
+
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("droptable", drop_table))
-
-    # Новая команда для тестирования ежедневного обновления
     dp.add_handler(CommandHandler("runupdate", run_update_command))
 
-    # --- НАСТРОЙКА ДИАЛОГА (CONVERSATION) ---
-    # Этот блок отвечает за пошаговый процесс "Сформировать -> Ввести имя поставщика"
     conv_handler = ConversationHandler(
-        # Точки входа в диалог
-        entry_points=[
-            # Запускается по кнопке или текстовому сообщению "Сформировать" (без учета регистра)
-            MessageHandler(Filters.regex(r'(?i)^Сформировать$'), start_form),
-        ],
-        # Состояния диалога
+        entry_points=[MessageHandler(Filters.regex(r'(?i)^Сформировать$'), start_form)],
         states={
-            # Состояние ASK_SUPPLIER: бот ожидает любое текстовое сообщение, которое не является командой
             ASK_SUPPLIER: [MessageHandler(Filters.text & ~Filters.command, receive_supplier)]
         },
-        # Способы прервать диалог (в нашем случае их нет, но аргумент обязателен)
         fallbacks=[]
     )
-
-    # Добавляем обработчик диалога в диспетчер
     dp.add_handler(conv_handler)
 
-    # --- ОСТАЛЬНЫЕ ОБРАБОТЧИКИ ---
-    # Эти обработчики работают, только если мы НЕ находимся внутри диалога
-    # Обрабатывает нажатия кнопок "Таблица", "Очистить"
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_keyboard_input))
-    # Обрабатывает сообщения с картинками и подписями (для сохранения в память)
     dp.add_handler(MessageHandler(Filters.photo & ~Filters.command, handle_message))
 
     logging.info("[Bot] Бот запущен и слушает сообщения...")
