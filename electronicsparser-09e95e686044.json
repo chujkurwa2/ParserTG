@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "electronicsparser",
+  "private_key_id": "09e95e686044133a319b2d2eb0e3b274fe1a750d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDQKfKrS9fGeNAx\nriIcWlJMAaBMAfGgc3KQ2COja8oKHpiNDLzkBTik7FcwYoqVNwDLfYMPuypOzIcm\n5Xg8L7u68VG6OxkhdfbbEMuohjIB2d4b844uEDkNvq6k41/Jggdq+s8PYLG1ZnrW\nIqxqIAmEsPGWdAG+hukjP+TRWrrCBnTpfaILJTTZbXDAklB1ZxqCaVpZGmQpcAr4\n3Kb0CdC5MWQLJ/UGHJ1W/Ft7fIKcmZFVgoSRFDx4SIBT1HEcC4GNItmHAjzjI7Qm\nzvu5zIPtbS3kRxIKcsus5MnN070NLW7tKQIP2I8CukExLHreD2zes7V3YtAnAKz5\njb2WJ8LJAgMBAAECggEAGIAPbUTgcR4wFuDRZ/fjfsmkNb320/Uyk0S1MRtTLMy8\nFMHei5HnwFWGz42RlQ1jvQ+ZOOVFDgA5mgThGWhe1ppnjZ0+EHejZdY8uimNQjWD\n1FNetSI4rNr4EDUoxX1V5Sv+6ebuE5UruP9cvqLlq+XtkVE3EVcsonb3NgLRP1uv\nmTuV379f75apyNLcdYhumcBA/ydg6saTK9fBSDHl9ZenScmi+7i8AEyilrJ+q3ge\nH+uvS4cxLmzNJB8zCJkjr/4BimZ41FAz1plcDnpxKljLuEIvJa0KFGNTLOiqSorh\n0kZnZCxk3tXjFDiSyau1wEDz8kgZZO/BGV7a9evpnwKBgQD9/huOmft8w6Ke8f+G\nyyAHsrsXww24mfB9HjqcE7uplyI7HLkxqIsXvkZ3IJEVz8lOxhicTIqACUeL5W7T\ndJy4Q+1MyMNkjy+Qrd+9IvtJPr+19hFJb//cbssMKfA/1R+5hen+PVBwAmVTA8w3\n10yJJ765NgQpredHWKa+SIvC7wKBgQDRzx3vr9kQlWpk9yh98u5W5Dqwdb6buXco\nv2/5MDelWXa6kJPxIyH7+qD8p52aK4YuFONJjY2lNt2oFV+4PqrU3UpGYvF90DGq\nRjuBs6iAiOCLINep+ZPqXcP++xBNvF7gMdrYqHjrVe7g3XPxPd74OfZKKGCRwx8S\nMDZKVVR1xwKBgDykEbI/Q1LrZoUqZAarso8D9jVbJYiAgHFu6TFgaLq50btpRTH8\n+pCFpk9E4D7j6D09gJy4jYy6KnHVKlukCNLZrOtbN4NnyERzrup6UqKPL7hi8oel\nDOJ1NVdHIAwtdzCVL2O7AdxsRgLG8lgWuDg63AdeRSoqUgCvwsfFjFDTAoGAK4Dr\nryhiNNsWbYsGHV+C5gd6194CQN3rBEr1l9DUqPds8/BIjMaBJHNqcBj9R9tgfiuc\nmUK9rRU8Tr7n0xdDatHbtc6MTk8eDTV030b2WHiJPq/3p+n1LrJ0kmlSjxvQ/GG6\nBBSixgFSf9PLV6lBk2zJUcUfiPnRdn8CstUQpz8CgYEA+bN5zDAW7KR5c+AR7IP6\nnrUC02pvvZE45O28wMZ0bITnxnFGnOvC5RL2FG2YWnoxsdzwbnMl2NqqsROdzED2\nse4KvFIuo94mxbTE6COyyT2RDks2B0aimtaydDTKvp26j/8l4NodZT2bN5e1nJA6\n3P/mRpcPQX6zb728Y0NZmQ8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "refresh-catalog-parcer@electronicsparser.iam.gserviceaccount.com",
+  "client_id": "112846532450289368425",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/refresh-catalog-parcer%40electronicsparser.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
