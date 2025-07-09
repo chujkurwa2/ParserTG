@@ -23,7 +23,7 @@ from gspread_formatting import CellFormat, Color, format_cell_ranges, \
     set_frozen  # ### ИЗМЕНЕНИЕ ### Импортируем batch_format
 
 # === НАСТРОЙКИ ===
-TELEGRAM_TOKEN = '8138310577:AAGm6oKHlSD2KHCWfScMZE1lIUOunpBI-sg'
+TELEGRAM_TOKEN = '8093252560:AAGGOE06osNjdrh85qT_Jnqf4b0pOfa0Gx0'
 OPENAI_API_KEY = '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'
 GOOGLE_SHEET_ID = '1rrjD_SpB79V0djuW-lDP_hIRptzdrITauRoybuJkoqA'
 
@@ -256,7 +256,7 @@ def normalize_with_ai(messages, supplier):
                + Важный параметр - внешняя и внутренняя память. Записывай её через "/". Пример: "24/512Gb, 12/256Gb".
                + Не пиши количество ядер. 
                 
-           Apple Watch: Укажи размер и тип ремешка, а так же год выпуска. Поставщики обычно его пишут. Если нету, то найди информацию сам.
+           Apple Watch: Укажи размер и тип ремешка, а так же год выпуска. Поставщики обычно его пишут. Если нету, то найди информацию сам. Так же бывают версии LTE и без LTE. Учитывай это, так как это разные устройства.
            Ipad: Бывают версии LTE и без LTE. Учитывай это. Устройство с LTE отличается от устройства без. + важен год выпуска. Пиши его в конце названия в скобках. 
 
            ВАЖНО: Не включай в model память, цвет или год. Это отдельные поля.
@@ -299,6 +299,10 @@ def normalize_with_ai(messages, supplier):
         
        Вот товары для обработки:
        {text}
+       
+       КОНЕЦ СООБЩЕНИЙ ОТ ПОСТАВЩИКА
+       
+       Вот CSV Файл с артикулами:
        """
 
     try:
